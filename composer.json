@@ -1,0 +1,26 @@
+{
+    "name": "bip70/bip70",
+    "description": "BIP70 toolkit for PHP",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "Bip70\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Bip70\\Test\\": "test/unit"
+        }
+    },
+    "require": {
+        "sop/x509": "^0.5.0",
+        "rgooding/protobuf-php": "v0.0.1",
+        "composer/ca-bundle": "^1.0",
+        "guzzlehttp/guzzle": "^6.3"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^6.4",
+        "squizlabs/php_codesniffer": "^3.1"
+    },
+    "license": "MIT"
+}
