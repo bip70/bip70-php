@@ -65,4 +65,101 @@ class TrustStoreLoaderTest extends TestCase
             $this->assertTrue($composerBundle->contains($ca));
         }
     }
+
+    public function testDisablingFallbackToComposer()
+    {
+        $envVar = "SSL_CERT_FILE";
+
+        // unset caPath variable first
+        $refObject   = new \ReflectionObject(new CaBundle());
+        $refProperty = $refObject->getProperty( 'caPath');
+        $refProperty->setAccessible( true );
+        $refProperty->setValue(null, null);
+
+        putenv("{$envVar}=" . CaBundle::getBundledCaBundlePath());
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage("Fallback to composer ca-bundle is disabled - you should install the ca-certificates package");
+
+        try {
+            TrustStoreLoader::fromSystem(false);
+        } catch (\Exception $e) {
+            $refObject   = new \ReflectionObject(new CaBundle());
+            $refProperty = $refObject->getProperty( 'caPath');
+            $refProperty->setAccessible( true );
+            $refProperty->setValue(null, null);
+
+            putenv($envVar."=");
+
+            throw $e;
+        }
+    }
+
+    public function testHandlingDirectoryInFromSystem()
+    {
+        $envVar = "SSL_CERT_DIR";
+
+        $systemPath = CaBundle::getSystemCaRootBundlePath();
+
+        // unset caPath variable first
+        $refObject   = new \ReflectionObject(new CaBundle());
+        $refProperty = $refObject->getProperty( 'caPath');
+        $refProperty->setAccessible( true );
+        $refProperty->setValue(null, null);
+
+        $path = implode("/", array_slice(explode("/", $systemPath), 0, -1));
+
+        putenv("{$envVar}=" . $path);
+
+        $trustStore = TrustStoreLoader::fromSystem();
+        $this->assertGreaterThan(0, $trustStore->count());
+
+        putenv("{$envVar}=");
+    }
+
+    public function testFromDirectoryRequiresADirectory()
+    {
+        $this->expectExceptionMessage("Invalid path passed to fromDirectory, is not a directory");
+        $this->expectException(\RuntimeException::class);
+
+        TrustStoreLoader::fromDirectory("/some/invalid/path");
+    }
+
+    public function testDirectoryMustHavePems()
+    {
+        $this->expectExceptionMessage("Invalid path passed to fromDirectory, is not a directory");
+        $this->expectException(\RuntimeException::class);
+
+        $tmpDir = __DIR__ . "/../../../" . bin2hex(random_bytes(4));
+        mkdir($tmpDir);
+
+        $this->expectExceptionMessage("No PEM files in directory");
+        $this->expectException(\RuntimeException::class);
+
+        try {
+            TrustStoreLoader::fromDirectory($tmpDir);
+        } catch (\Exception $e) {
+            rmdir($tmpDir);
+            throw $e;
+        }
+    }
+
+    public function testLoadFromDirectory()
+    {
+        // unset caPath variable first
+        $refObject   = new \ReflectionObject(new CaBundle());
+        $refProperty = $refObject->getProperty( 'caPath');
+        $refProperty->setAccessible( true );
+        $refProperty->setValue(null, null);
+
+        $systemPath = CaBundle::getSystemCaRootBundlePath();
+
+        // We expect ca-certificates to be installed
+        $this->assertFalse(CaBundle::getBundledCaBundlePath() === $systemPath);
+
+        $path = implode("/", array_slice(explode("/", $systemPath), 0, -1));
+        $store = TrustStoreLoader::fromDirectory($path);
+
+        $this->assertGreaterThan(0, $store->count());
+    }
 }

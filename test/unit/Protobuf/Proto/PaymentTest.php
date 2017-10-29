@@ -17,7 +17,10 @@ class PaymentTest extends TestCase
         $output->setScript(hex2bin("76a914536ffa992491508dca0354e52f32a3a7a679a53a88ac"));
 
         $payment = new Payment();
+
+        $this->assertFalse($payment->hasRefundTo());
         $payment->setRefundTo($output, 0);
+        $this->assertTrue($payment->hasRefundTo());
 
         $serialized = $payment->serialize();
         $p1 = new Payment();
@@ -28,8 +31,14 @@ class PaymentTest extends TestCase
         $this->assertEquals($output->getScript(), $p1->getRefundTo(0)->getScript());
 
         $payment->clearRefundTo();
-
         $this->assertEquals(0, count($payment->getRefundToList()));
+
+        $payment->addRefundTo($output);
+        $this->assertTrue($payment->hasRefundTo());
+
+        $this->assertEquals(1, count($p1->getRefundToList()));
+        $this->assertEquals($output->getAmount(), $p1->getRefundTo(0)->getAmount());
+        $this->assertEquals($output->getScript(), $p1->getRefundTo(0)->getScript());
     }
 
     public function testTransactions()
@@ -57,6 +66,15 @@ class PaymentTest extends TestCase
         $this->assertEquals(2, count($p1->getTransactionsList()));
         $this->assertEquals($tx1, $p1->getTransactions(0));
         $this->assertEquals($tx2, $p1->getTransactions(1));
+
+        $payment->clearTransactions();
+        $this->assertFalse($payment->hasTransactions());
+
+        $payment->addTransactions($tx1);
+        $payment->addTransactions($tx2);
+
+        $this->assertEquals($tx1, $p1->getTransactions(0));
+        $this->assertEquals($tx2, $p1->getTransactions(1));
     }
 
     public function testMerchantData()
@@ -77,6 +95,9 @@ class PaymentTest extends TestCase
         $p1->parse($serialized);
 
         $this->assertEquals($blob, $p1->getMerchantData());
+
+        $p1->clearMerchantData();
+        $this->assertFalse($p1->hasMerchantData());
     }
 
     public function testMemo()
@@ -94,5 +115,8 @@ class PaymentTest extends TestCase
         $p1->parse($serialized);
 
         $this->assertEquals($blob, $p1->getMemo());
+
+        $p1->clearMemo();
+        $this->assertFalse($p1->hasMemo());
     }
 }

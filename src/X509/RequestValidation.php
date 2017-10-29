@@ -6,7 +6,7 @@ namespace Bip70\X509;
 
 use Bip70\X509\Exception\InvalidCertificateChainException;
 use Bip70\X509\Exception\InvalidX509Signature;
-use Bip70\Protobuf\Codec\Binary;
+use Bip70\Protobuf\Codec\NonDiscardingBinaryCodec;
 use Bip70\Protobuf\Proto\PaymentRequest;
 use Bip70\Protobuf\Proto\X509Certificates;
 use Sop\CryptoBridge\Crypto;
@@ -99,7 +99,7 @@ class RequestValidation
         $clone = clone $paymentRequest;
         $clone->setSignature('');
 
-        $signData = $clone->serialize(new Binary());
+        $signData = $clone->serialize(new NonDiscardingBinaryCodec());
         $signature = Signature::fromSignatureData($paymentRequest->getSignature(), $signAlgorithm);
         if (!Crypto::getDefault()->verify($signData, $signature, $subjectKey, $signAlgorithm)) {
             throw new InvalidX509Signature("Invalid signature on request");

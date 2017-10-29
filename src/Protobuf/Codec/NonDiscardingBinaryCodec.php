@@ -8,22 +8,13 @@ use DrSlump\Protobuf;
 use DrSlump\Protobuf\Codec\Binary\Writer as BinaryWriter;
 use DrSlump\Protobuf\Codec\Binary as BinaryCodec;
 
-class Binary extends BinaryCodec
+class NonDiscardingBinaryCodec extends BinaryCodec
 {
     /**
-     * @var bool
-     */
-    protected static $discardValuesMatchingDefault = false;
-
-    /**
-     * @param bool $setting
-     */
-    public static function setDiscardValuesMatchingDefault(bool $setting)
-    {
-        static::$discardValuesMatchingDefault = $setting;
-    }
-
-    /**
+     * Same as upstreams, but removing the part that
+     * discards fields where the current value matches
+     * the default
+     *
      * @param Protobuf\Message $message
      * @return string
      */
@@ -54,11 +45,6 @@ class Binary extends BinaryCodec
             $key = $tag << 3 | $wire;
 
             $value = $message->_get($tag);
-            if (self::$discardValuesMatchingDefault) {
-                if ($field->hasDefault() && ($value === $field->getDefault())) {
-                    continue;
-                }
-            }
 
             if ($field->isRepeated()) {
                 // Packed fields are encoded as a length-delimited stream containing

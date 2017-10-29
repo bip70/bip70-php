@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Bip70\X509;
 
-use Bip70\Protobuf\Codec\Binary;
+use Bip70\Protobuf\Codec\NonDiscardingBinaryCodec;
 use Bip70\Protobuf\Proto\PaymentDetails;
 use Bip70\Protobuf\Proto\PaymentRequest;
 use Bip70\Protobuf\Proto\X509Certificates;
@@ -71,7 +71,7 @@ class RequestSigner implements RequestSignerInterface
         $request->setSerializedPaymentDetails($details->serialize());
         $request->setSignature('');
 
-        $signature = $this->crypto->sign($request->serialize(new Binary()), $privateKey, $signAlgorithm);
+        $signature = $this->crypto->sign($request->serialize(new NonDiscardingBinaryCodec()), $privateKey, $signAlgorithm);
 
         $request->setSignature($signature->bitString()->string());
 

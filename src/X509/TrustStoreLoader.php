@@ -27,7 +27,7 @@ class TrustStoreLoader
         $rootBundlePath = CaBundle::getSystemCaRootBundlePath();
 
         if (!$allowFallback && CaBundle::getBundledCaBundlePath() === $rootBundlePath) {
-            throw new \RuntimeException("No certificate store found on system - perhaps you need the ca-certificates package?");
+            throw new \RuntimeException("Fallback to composer ca-bundle is disabled - you should install the ca-certificates package");
         }
 
         if (is_dir($rootBundlePath)) {
@@ -73,8 +73,12 @@ class TrustStoreLoader
         }
 
         $pems = [];
-        foreach (glob("*.pem") as $pemFile) {
+        foreach (glob("$dir/*.pem") as $pemFile) {
             $pems[] = PEM::fromFile($pemFile);
+        }
+
+        if (count($pems) < 1) {
+            throw new \RuntimeException("No PEM files in directory");
         }
 
         return CertificateBundle::fromPEMs(...$pems);

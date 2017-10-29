@@ -2,7 +2,7 @@
 
 namespace Bip70\Client;
 
-use Bip70\Protobuf\Codec\Binary;
+use Bip70\Protobuf\Codec\NonDiscardingBinaryCodec;
 use Bip70\Protobuf\Proto\PaymentRequest;
 use Bip70\X509\RequestValidation;
 use Bip70\X509\PkiType;
@@ -111,7 +111,7 @@ class GuzzleHttpClient
         }
 
         $body = $response->getBody()->getContents();
-        $codec = new Binary();
+        $codec = new NonDiscardingBinaryCodec();
         $paymentRequest = new PaymentRequest();
 
         try {

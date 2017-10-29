@@ -25,5 +25,31 @@ class PaymentACKTest extends TestCase
         $p1->parse($serialized);
 
         $this->assertEquals($blob, $p1->getMemo());
+
+        $ack->clearMemo();
+        $this->assertFalse($ack->hasMemo());
+    }
+
+    public function testPayment()
+    {
+        $tx1 = "abcd";
+        $payment = new Payment();
+        $payment->addTransactions($tx1);
+
+        $ack = new PaymentACK();
+        $this->assertFalse($ack->hasPayment());
+        $ack->setPayment($payment);
+        $this->assertTrue($ack->hasPayment());
+
+        $serialized = $ack->serialize();
+        $p1 = new PaymentACK();
+        $p1->parse($serialized);
+
+        $this->assertTrue($p1->hasPayment());
+        $this->assertTrue($p1->getPayment()->hasTransactions());
+        $this->assertEquals($tx1, $p1->getPayment()->getTransactions(0));
+
+        $ack->clearPayment();
+        $this->assertFalse($ack->hasPayment());
     }
 }

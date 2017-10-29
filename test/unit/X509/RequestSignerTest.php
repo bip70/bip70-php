@@ -97,13 +97,10 @@ class RequestSignerTest extends TestCase
 
             try {
                 $requestValidator->validateX509Signature($cert, $request);
-                $threw = false;
             } catch (\Exception $e) {
-                echo $e->getMessage().PHP_EOL;
-                $threw = true;
+                $this->fail("verification of own signature should always succeed");
+                return;
             }
-            $this->assertFalse($threw, "verification of own signature should always succeed");
-
 
             $x509 = new X509Certificates();
             $x509->parse($request->getPkiData());
@@ -117,13 +114,13 @@ class RequestSignerTest extends TestCase
             }
 
             try {
-                $requestValidator->validateCertificateChain($x509);
-                $threw = false;
+                $qualifiedCert = $requestValidator->validateCertificateChain($x509);
             } catch (\Exception $e) {
-                $threw = true;
+                $this->fail("certificate chain validation shouldn't fail");
+                return;
             }
 
-            $this->assertFalse($threw, "cert chain validation shouldn't fail");
+            $this->assertTrue($cert->equals($qualifiedCert->getPath()->endEntityCertificate()));
 
             try {
                 $result = $requestValidator->verifyX509Details($request);
