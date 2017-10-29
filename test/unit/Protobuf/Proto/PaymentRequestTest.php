@@ -7,7 +7,7 @@ namespace Bip70\Test\Protobuf\Proto;
 use Bip70\Protobuf\Codec\NonDiscardingBinaryCodec;
 use Bip70\Protobuf\Proto\PaymentDetails;
 use Bip70\Protobuf\Proto\PaymentRequest;
-use Bip70\X509\PkiType;
+use Bip70\X509\PKIType;
 use PHPUnit\Framework\TestCase;
 
 class PaymentRequestTest extends TestCase
@@ -71,14 +71,14 @@ class PaymentRequestTest extends TestCase
         $request->setSerializedPaymentDetails($details->serialize());
 
         $this->assertTrue($request->hasPkiType());
-        $this->assertEquals(PkiType::NONE, $request->getPkiType());
+        $this->assertEquals(PKIType::NONE, $request->getPkiType());
 
         $request->clearPkiType();
         $this->assertFalse($request->hasPkiType());
 
-        $request->setPkiType(PkiType::X509_SHA1);
+        $request->setPkiType(PKIType::X509_SHA1);
         $this->assertTrue($request->hasPkiType());
-        $this->assertEquals(PkiType::X509_SHA1, $request->getPkiType());
+        $this->assertEquals(PKIType::X509_SHA1, $request->getPkiType());
 
         $codec = new NonDiscardingBinaryCodec();
         $parsed = new PaymentRequest();

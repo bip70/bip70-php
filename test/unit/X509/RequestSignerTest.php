@@ -6,7 +6,7 @@ namespace Bip70\Test\X509;
 
 use Bip70\Protobuf\Proto\PaymentDetails;
 use Bip70\Protobuf\Proto\X509Certificates;
-use Bip70\X509\PkiType;
+use Bip70\X509\PKIType;
 use Bip70\X509\RequestSigner;
 use Bip70\X509\RequestValidation;
 use Bip70\X509\TrustStoreLoader;
@@ -30,7 +30,7 @@ class RequestSignerTest extends TestCase
         $this->expectExceptionMessage("Don't call sign with pki_type = none");
         $this->expectException(\RuntimeException::class);
 
-        $requestSigner->sign($details, PkiType::NONE, $privateKey, $cert, $certBundle);
+        $requestSigner->sign($details, PKIType::NONE, $privateKey, $cert, $certBundle);
     }
 
     public function testSignRequiresValidPkiType()
@@ -87,7 +87,7 @@ class RequestSignerTest extends TestCase
         $requestSigner = new RequestSigner();
         $requestValidator = new RequestValidation(null, $trustStore);
 
-        foreach ([PkiType::X509_SHA256, PkiType::X509_SHA1] as $pkiType) {
+        foreach ([PKIType::X509_SHA256, PKIType::X509_SHA1] as $pkiType) {
             $request = $requestSigner->sign($details, $pkiType, $privateKey, $cert, $certBundle);
             $this->assertTrue($request->hasSignature());
             $this->assertTrue($request->hasPkiData());

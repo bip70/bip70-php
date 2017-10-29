@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Bip70\Protobuf\Proto;
 
 class PaymentACK extends \DrSlump\Protobuf\Message

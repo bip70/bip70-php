@@ -42,13 +42,13 @@ class RequestSigner implements RequestSignerInterface
         Certificate $cert,
         CertificateBundle $intermediates
     ): PaymentRequest {
-        if ($pkiType === PkiType::NONE) {
+        if ($pkiType === PKIType::NONE) {
             throw new \RuntimeException("Don't call sign with pki_type = none");
         }
 
-        if ($pkiType === PkiType::X509_SHA1) {
+        if ($pkiType === PKIType::X509_SHA1) {
             $hashAlgId = new SHA1AlgorithmIdentifier();
-        } else if ($pkiType === PkiType::X509_SHA256) {
+        } else if ($pkiType === PKIType::X509_SHA256) {
             $hashAlgId = new SHA256AlgorithmIdentifier();
         } else {
             throw new \RuntimeException("Unknown signature scheme");

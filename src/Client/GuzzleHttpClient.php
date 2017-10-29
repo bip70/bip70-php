@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Bip70\Client;
 
 use Bip70\Protobuf\Codec\NonDiscardingBinaryCodec;
 use Bip70\Protobuf\Proto\PaymentRequest;
 use Bip70\X509\RequestValidation;
-use Bip70\X509\PkiType;
+use Bip70\X509\PKIType;
 use GuzzleHttp\Client;
 use Psr\Http\Message\ResponseInterface;
 
@@ -25,10 +27,6 @@ class GuzzleHttpClient
      * @var bool
      */
     private $checkContentType = true;
-
-    const TYPE_PAYMENT_REQUEST = "application/bitcoin-paymentrequest";
-    const TYPE_PAYMENT = "application/bitcoin-payment";
-    const TYPE_PAYMENT_ACK = "application/bitcoin-paymentack";
 
     /**
      * HttpClient constructor.
@@ -69,7 +67,20 @@ class GuzzleHttpClient
             "headers" => ["Accept" => $acceptType,]
         ];
 
-        return $this->client->get($url, $options);
+        $response = $this->client->get($url, $options);
+
+        if ($this->checkContentType) {
+            if (!$response->hasHeader("Content-Type")) {
+                throw new \RuntimeException("Missing content-type header");
+            }
+
+            $contentType = $response->getHeader("Content-Type");
+            if (!in_array($acceptType, $contentType)) {
+                throw new \RuntimeException("Content-type was not " . $acceptType);
+            }
+        }
+
+        return $response;
     }
 
     /**
@@ -78,31 +89,19 @@ class GuzzleHttpClient
      */
     public function getRequest(string $requestUrl): PaymentRequestInfo
     {
-        $response = $this->get($requestUrl, self::TYPE_PAYMENT_REQUEST);
-
-        if ($this->checkContentType) {
-            if (!$response->hasHeader("Content-Type")) {
-                throw new \RuntimeException("Missing content-type header");
-            }
-
-            $contentType = $response->getHeader("Content-Type");
-            if (!in_array(self::TYPE_PAYMENT_REQUEST, $contentType)) {
-                throw new \RuntimeException("Content-type was not application/bitcoin-paymentrequest");
-            }
-        }
-
+        $response = $this->get($requestUrl, MIMEType::PAYMENT_REQUEST);
         $body = $response->getBody()->getContents();
-        $codec = new NonDiscardingBinaryCodec();
+
         $paymentRequest = new PaymentRequest();
 
         try {
-            $paymentRequest->parse($body, $codec);
+            $paymentRequest->parse($body, new NonDiscardingBinaryCodec());
         } catch (\Exception $e) {
             throw new \RuntimeException("Failed to decode payment request");
         }
 
         $validationResult = null;
-        if ($paymentRequest->getPkiType() !== PkiType::NONE) {
+        if ($paymentRequest->getPkiType() !== PKIType::NONE) {
             $validationResult = $this->requestValidation->verifyX509Details($paymentRequest);
         }
 

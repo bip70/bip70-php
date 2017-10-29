@@ -7,7 +7,7 @@ namespace Bip70\Test\X509;
 use Bip70\Protobuf\Proto\PaymentRequest;
 use Bip70\Protobuf\Proto\X509Certificates;
 use Bip70\X509\Exception\InvalidX509Signature;
-use Bip70\X509\PkiType;
+use Bip70\X509\PKIType;
 use Bip70\X509\QualifiedCertificate;
 use Bip70\X509\RequestValidation;
 use PHPUnit\Framework\TestCase;
@@ -20,7 +20,7 @@ class RequestValidationTest extends TestCase
     public function testValidateX509DetailsRequiresSignatureType()
     {
         $request = new PaymentRequest();
-        $request->setPkiType(PkiType::NONE);
+        $request->setPkiType(PKIType::NONE);
 
         $validator = new RequestValidation();
 
@@ -33,7 +33,7 @@ class RequestValidationTest extends TestCase
     public function testValidateX509SignatureRequiresSignatureType()
     {
         $request = new PaymentRequest();
-        $request->setPkiType(PkiType::NONE);
+        $request->setPkiType(PKIType::NONE);
 
         $validator = new RequestValidation();
         $certificate = Certificate::fromPEM(PEM::fromFile(__DIR__ . "/../../data/selfsigned.cert.pem"));
@@ -89,7 +89,7 @@ class RequestValidationTest extends TestCase
         $x509->addCertificate($cert);
 
         $request = new PaymentRequest();
-        $request->setPkiType(PkiType::X509_SHA1);
+        $request->setPkiType(PKIType::X509_SHA1);
         $request->setPkiData($x509->serialize());
         $request->setSignature("invalid signature");
         $request->setSerializedPaymentDetails("serialized details aren't checked");

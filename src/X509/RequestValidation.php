@@ -82,9 +82,9 @@ class RequestValidation
      */
     public function validateX509Signature(Certificate $endEntity, PaymentRequest $paymentRequest): void
     {
-        if ($paymentRequest->getPkiType() === PkiType::X509_SHA1) {
+        if ($paymentRequest->getPkiType() === PKIType::X509_SHA1) {
             $hashAlgId = new SHA1AlgorithmIdentifier();
-        } else if ($paymentRequest->getPkiType() === PkiType::X509_SHA256) {
+        } else if ($paymentRequest->getPkiType() === PKIType::X509_SHA256) {
             $hashAlgId = new SHA256AlgorithmIdentifier();
         } else {
             throw new \RuntimeException("Unknown signature scheme");
@@ -112,7 +112,7 @@ class RequestValidation
      */
     public function verifyX509Details(PaymentRequest $paymentRequest)
     {
-        if (PkiType::NONE === $paymentRequest->getPkiType()) {
+        if (PKIType::NONE === $paymentRequest->getPkiType()) {
             throw new \RuntimeException("Cannot verify a request without a signature. You should check before calling verify.");
         }
 

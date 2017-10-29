@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Bip70\Protobuf\Proto;
 
 use DrSlump\Protobuf\Message;
