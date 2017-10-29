@@ -5,7 +5,6 @@ namespace Bip70\X509;
 use Composer\CaBundle\CaBundle;
 use Sop\CryptoEncoding\PEM;
 use Sop\CryptoEncoding\PEMBundle;
-use X509\Certificate\Certificate;
 use X509\Certificate\CertificateBundle;
 
 class TrustStoreLoader
@@ -31,7 +30,11 @@ class TrustStoreLoader
             throw new \RuntimeException("No certificate store found on system - perhaps you need the ca-certificates package?");
         }
 
-        return self::fromFile($rootBundlePath);
+        if (is_dir($rootBundlePath)) {
+            return self::fromDirectory($rootBundlePath);
+        } else {
+            return self::fromFile($rootBundlePath);
+        }
     }
 
     /**
@@ -45,31 +48,6 @@ class TrustStoreLoader
     }
 
     /**
-     * Load a trust store from a set of files.
-     *
-     * @param string[] ...$files
-     * @return CertificateBundle
-     */
-    public static function fromFiles(string ...$files): CertificateBundle
-    {
-        /** @var Certificate[] $certs */
-        $roots = [];
-        foreach ($files as $file) {
-            try {
-                $certificate = Certificate::fromPEM(PEM::fromFile($file));
-            } catch (\Exception $e) {
-                throw new \RuntimeException("Invalid PEM file found", 0, $e);
-            }
-
-            if ($certificate->isSelfIssued()) {
-                $roots[] = $certificate;
-            }
-        }
-
-        return new CertificateBundle(...$roots);
-    }
-
-    /**
      * Load a trust store from a pem bundle file (can contain
      * multiple certificates)
      *
@@ -79,5 +57,26 @@ class TrustStoreLoader
     public static function fromFile(string $file): CertificateBundle
     {
         return CertificateBundle::fromPEMBundle(PEMBundle::fromFile($file));
+    }
+
+    /**
+     * Load a trust store from a pem bundle file (can contain
+     * multiple certificates)
+     *
+     * @param string $dir
+     * @return CertificateBundle
+     */
+    public static function fromDirectory(string $dir): CertificateBundle
+    {
+        if (!is_dir($dir)) {
+            throw new \RuntimeException("Invalid path passed to fromDirectory, is not a directory");
+        }
+
+        $pems = [];
+        foreach (glob("*.pem") as $pemFile) {
+            $pems[] = PEM::fromFile($pemFile);
+        }
+
+        return CertificateBundle::fromPEMs(...$pems);
     }
 }
