@@ -141,5 +141,4 @@ class PaymentRequestTest extends TestCase
         $request->clearSignature();
         $this->assertFalse($request->hasSignature());
     }
-
 }

@@ -59,25 +59,6 @@ class GuzzleHttpClient
     }
 
     /**
-     * @param ResponseInterface $response
-     * @return ResponseInterface
-     */
-    public function handleResponse(ResponseInterface $response)
-    {
-        if ($response->getStatusCode() !== 200) {
-            switch ($response->getStatusCode()) {
-                case 404:
-                    throw new \RuntimeException("Request not found - perhaps it's expired, or an invalid url");
-                case 403:
-                    throw new \RuntimeException("Access to payment request forbidden");
-                default:
-                    throw new \RuntimeException("Server returned an unsuccessful HTTP code");
-            }
-        }
-        return $response;
-    }
-
-    /**
      * @param string $url
      * @param string $acceptType
      * @return ResponseInterface
@@ -88,7 +69,7 @@ class GuzzleHttpClient
             "headers" => ["Accept" => $acceptType,]
         ];
 
-        return $this->handleResponse($this->client->get($url, $options));
+        return $this->client->get($url, $options);
     }
 
     /**

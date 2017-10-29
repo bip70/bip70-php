@@ -23,7 +23,6 @@ class PaymentDetailsTest extends TestCase
 
         $this->assertEquals($details->hasTime(), $parsed->hasTime());
         $this->assertEquals($details->getTime(), $parsed->getTime());
-
     }
 
     public function testTime()
@@ -236,5 +235,4 @@ class PaymentDetailsTest extends TestCase
         $this->assertEquals($output2->getAmount(), $details->getOutputs(1)->getAmount());
         $this->assertEquals($output2->getScript(), $details->getOutputs(1)->getScript());
     }
-
 }

@@ -72,8 +72,8 @@ class TrustStoreLoaderTest extends TestCase
 
         // unset caPath variable first
         $refObject   = new \ReflectionObject(new CaBundle());
-        $refProperty = $refObject->getProperty( 'caPath');
-        $refProperty->setAccessible( true );
+        $refProperty = $refObject->getProperty('caPath');
+        $refProperty->setAccessible(true);
         $refProperty->setValue(null, null);
 
         putenv("{$envVar}=" . CaBundle::getBundledCaBundlePath());
@@ -85,8 +85,8 @@ class TrustStoreLoaderTest extends TestCase
             TrustStoreLoader::fromSystem(false);
         } catch (\Exception $e) {
             $refObject   = new \ReflectionObject(new CaBundle());
-            $refProperty = $refObject->getProperty( 'caPath');
-            $refProperty->setAccessible( true );
+            $refProperty = $refObject->getProperty('caPath');
+            $refProperty->setAccessible(true);
             $refProperty->setValue(null, null);
 
             putenv($envVar."=");
@@ -103,8 +103,8 @@ class TrustStoreLoaderTest extends TestCase
 
         // unset caPath variable first
         $refObject   = new \ReflectionObject(new CaBundle());
-        $refProperty = $refObject->getProperty( 'caPath');
-        $refProperty->setAccessible( true );
+        $refProperty = $refObject->getProperty('caPath');
+        $refProperty->setAccessible(true);
         $refProperty->setValue(null, null);
 
         $path = implode("/", array_slice(explode("/", $systemPath), 0, -1));
@@ -148,8 +148,8 @@ class TrustStoreLoaderTest extends TestCase
     {
         // unset caPath variable first
         $refObject   = new \ReflectionObject(new CaBundle());
-        $refProperty = $refObject->getProperty( 'caPath');
-        $refProperty->setAccessible( true );
+        $refProperty = $refObject->getProperty('caPath');
+        $refProperty->setAccessible(true);
         $refProperty->setValue(null, null);
 
         $systemPath = CaBundle::getSystemCaRootBundlePath();
