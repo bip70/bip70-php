@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Bip70\Client;
 
 use Bip70\Protobuf\Codec\NonDiscardingBinaryCodec;
+use Bip70\Protobuf\Proto\Payment;
+use Bip70\Protobuf\Proto\PaymentACK;
+use Bip70\Protobuf\Proto\PaymentDetails;
 use Bip70\Protobuf\Proto\PaymentRequest;
 use Bip70\X509\RequestValidation;
 use Bip70\X509\PKIType;
@@ -19,31 +22,24 @@ class GuzzleHttpClient
     private $client;
 
     /**
-     * @var RequestValidation
-     */
-    private $requestValidation;
-
-    /**
      * @var bool
      */
     private $checkContentType = true;
 
     /**
      * HttpClient constructor.
-     * @param RequestValidation $requestValidation
      * @param Client|null $client
      */
-    public function __construct(RequestValidation $requestValidation, Client $client = null)
+    public function __construct(Client $client = null)
     {
         $this->client = $client ?: new Client();
-        $this->requestValidation = $requestValidation;
     }
 
     /**
      * @param bool $setting
      * @return void
      */
-    public function checkContentType(bool $setting)
+    public function setCheckContentType(bool $setting)
     {
         $this->checkContentType = $setting;
     }
@@ -70,41 +66,115 @@ class GuzzleHttpClient
         $response = $this->client->get($url, $options);
 
         if ($this->checkContentType) {
-            if (!$response->hasHeader("Content-Type")) {
-                throw new \RuntimeException("Missing content-type header");
-            }
-
-            $contentType = $response->getHeader("Content-Type");
-            if (!in_array($acceptType, $contentType)) {
-                throw new \RuntimeException("Content-type was not " . $acceptType);
-            }
+            $this->checkContentType($acceptType, $response);
         }
 
         return $response;
     }
 
     /**
+     * @param string $url
+     * @param string $acceptType
+     * @param string $dataMIMEType
+     * @param string $data
+     * @return ResponseInterface
+     */
+    private function post(string $url, string $acceptType, string $dataMIMEType, string $data): ResponseInterface
+    {
+        $options = [
+            "headers" => [
+                "Accept" => $acceptType,
+                "Content-Type" => $dataMIMEType,
+            ],
+            'body' => $data,
+        ];
+
+        $response = $this->client->post($url, $options);
+
+        if ($this->checkContentType) {
+            $this->checkContentType($acceptType, $response);
+        }
+
+        return $response;
+    }
+
+    /**
+     * @param string $expectType
+     * @param ResponseInterface $response
+     */
+    public function checkContentType(string $expectType, ResponseInterface $response)
+    {
+        if (!$response->hasHeader("Content-Type")) {
+            throw new \RuntimeException("Missing content-type header");
+        }
+
+        $contentType = $response->getHeader("Content-Type");
+        if (!in_array($expectType, $contentType)) {
+            throw new \RuntimeException("Content-type was not " . $expectType);
+        }
+    }
+
+    /**
      * @param string $requestUrl
+     * @param RequestValidation $requestValidation
      * @return PaymentRequestInfo
      */
-    public function getRequest(string $requestUrl): PaymentRequestInfo
+    public function getRequest(string $requestUrl, RequestValidation $requestValidation): PaymentRequestInfo
     {
         $response = $this->get($requestUrl, MIMEType::PAYMENT_REQUEST);
-        $body = $response->getBody()->getContents();
 
         $paymentRequest = new PaymentRequest();
 
         try {
-            $paymentRequest->parse($body, new NonDiscardingBinaryCodec());
+            $paymentRequest->parse($response->getBody()->getContents(), new NonDiscardingBinaryCodec());
         } catch (\Exception $e) {
             throw new \RuntimeException("Failed to decode payment request");
         }
 
         $validationResult = null;
         if ($paymentRequest->getPkiType() !== PKIType::NONE) {
-            $validationResult = $this->requestValidation->verifyX509Details($paymentRequest);
+            $validationResult = $requestValidation->verifyX509Details($paymentRequest);
         }
 
         return new PaymentRequestInfo($paymentRequest, $validationResult);
+    }
+
+    /**
+     * @param PaymentDetails $details
+     * @param null|string $memo
+     * @param string[] ...$transactions
+     * @return PaymentACK
+     */
+    public function sendPayment(PaymentDetails $details, string $memo = null, string ...$transactions): PaymentACK
+    {
+        if (!$details->hasPaymentUrl()) {
+            throw new \RuntimeException("No payment url set on details");
+        }
+
+        $payment = new Payment();
+        foreach ($transactions as $transaction) {
+            $payment->addTransactions($transaction);
+        }
+
+        if ($details->hasMerchantData()) {
+            $payment->setMerchantData($details->getMerchantData());
+        }
+
+        if ($memo) {
+            $payment->setMemo($memo);
+        }
+
+        $paymentData = $payment->serialize();
+        $result = $this->post($details->getPaymentUrl(), MIMEType::PAYMENT_ACK, MIMEType::PAYMENT, $paymentData);
+
+        $ack = new PaymentACK();
+
+        try {
+            $ack->parse($result->getBody()->getContents());
+        } catch (\Exception $e) {
+            throw new \RuntimeException("Failed to decode Payment ACK message");
+        }
+
+        return $ack;
     }
 }
