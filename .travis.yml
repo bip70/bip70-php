@@ -21,15 +21,11 @@ matrix:
   include:
       # This reenables php7.0/phpunit test with COVERAGE
     - php: 7.0
-      env: PHPUNIT=true COVERAGE_SHARDS=5 COVERAGE=true
+      env: PHPUNIT=true COVERAGE=true
 
-      # This runs phpcs on php7.0 - only code style
+      # This runs phpcs on php7.0 - only code style & examples
     - php: 7.0
-      env: CODESTYLE=true
-
-      # This runs phpcs on php7.0 - only examples
-    - php: 7.0
-      env: EXAMPLES=true
+      env: CODESTYLE=true EXAMPLES=true
 
 sudo: false
 

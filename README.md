@@ -12,6 +12,9 @@ It exposes classes for:
  * for downloading and fully validating a payment request over HTTP(s)
  * creating (un)signed payment requests
 
+Note: this library should not be considered stable until the v1.0.0 release. 
+Outstanding issues are tracked using the v1.0.0 milestone.
+
 ## Contributing
 
 For contributing guidelines, please see [CONTRIBUTING.md](CONTRIBUTING.md)

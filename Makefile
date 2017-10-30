@@ -12,6 +12,9 @@ phpcbf: pretest
 phpunit-ci: pretest
 		vendor/bin/phpunit --coverage-text --coverage-text --coverage-clover=build/coverage.clover
 
+test-examples:
+		./validate_examples.sh
+
 ocular:
                 wget https://scrutinizer-ci.com/ocular.phar
 
