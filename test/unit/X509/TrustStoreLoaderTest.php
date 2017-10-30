@@ -8,6 +8,7 @@ use Bip70\X509\TrustStoreLoader;
 use Composer\CaBundle\CaBundle;
 use PHPUnit\Framework\TestCase;
 use Sop\CryptoEncoding\PEMBundle;
+use X509\Certificate\Certificate;
 use X509\Certificate\CertificateBundle;
 
 class TrustStoreLoaderTest extends TestCase
@@ -15,10 +16,8 @@ class TrustStoreLoaderTest extends TestCase
     public function testLoadFromCaStore()
     {
         $caFile = CaBundle::getSystemCaRootBundlePath();
-        $this->assertFileExists($caFile);
 
-        $cas = CertificateBundle::fromPEMBundle(PEMBundle::fromFile($caFile));
-        $this->assertGreaterThan(0, count($cas));
+        $this->assertFileExists($caFile);
 
         return $caFile === CaBundle::getBundledCaBundlePath();
     }
@@ -43,7 +42,18 @@ class TrustStoreLoaderTest extends TestCase
         $systemStore = TrustStoreLoader::fromFile($path);
         $this->assertGreaterThan(0, count($systemStore));
 
-        $cas = CertificateBundle::fromPEMBundle(PEMBundle::fromFile($path));
+        $bundle = PEMBundle::fromFile($path);
+        $certs = [];
+        foreach ($bundle->getIterator() as $it) {
+            try {
+                $cert = Certificate::fromPEM($it);
+                $certs[] = $cert;
+            } catch (\Exception $e) {
+
+            }
+        }
+
+        $cas = new CertificateBundle(...$certs);
         foreach ($cas->getIterator() as $ca) {
             $this->assertTrue($systemStore->contains($ca));
         }
@@ -60,7 +70,18 @@ class TrustStoreLoaderTest extends TestCase
         $composerBundle = call_user_func($fxn);
         $this->assertGreaterThan(0, count($composerBundle));
 
-        $cas = CertificateBundle::fromPEMBundle(PEMBundle::fromFile($path));
+        $pems = PEMBundle::fromFile($path);
+        $certs = [];
+        foreach ($pems as $pem) {
+            try {
+                $cert = Certificate::fromPEM($pem);
+                $certs[] = $cert;
+            } catch (\Exception $e) {
+
+            }
+        }
+
+        $cas = new CertificateBundle(...$certs);
         foreach ($cas->getIterator() as $ca) {
             $this->assertTrue($composerBundle->contains($ca));
         }
