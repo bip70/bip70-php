@@ -68,7 +68,6 @@ class TrustStoreLoader
                 $certificate = Certificate::fromPEM($pem);
                 $certificates[] = $certificate;
             } catch (\Exception $e) {
-
             }
         }
 
@@ -99,7 +98,6 @@ class TrustStoreLoader
                 $certificate = Certificate::fromPEM($pem);
                 $certificates[] = $certificate;
             } catch (\Exception $e) {
-
             }
         }
 

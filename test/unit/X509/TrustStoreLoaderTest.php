@@ -49,7 +49,6 @@ class TrustStoreLoaderTest extends TestCase
                 $cert = Certificate::fromPEM($it);
                 $certs[] = $cert;
             } catch (\Exception $e) {
-
             }
         }
 
@@ -77,7 +76,6 @@ class TrustStoreLoaderTest extends TestCase
                 $cert = Certificate::fromPEM($pem);
                 $certs[] = $cert;
             } catch (\Exception $e) {
-
             }
         }
 
