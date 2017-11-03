@@ -80,7 +80,7 @@ class RequestValidation
      * @return void
      * @throws InvalidX509Signature
      */
-    public function validateX509Signature(Certificate $endEntity, PaymentRequest $paymentRequest): void
+    public function validateX509Signature(Certificate $endEntity, PaymentRequest $paymentRequest)
     {
         if ($paymentRequest->getPkiType() === PKIType::X509_SHA1) {
             $hashAlgId = new SHA1AlgorithmIdentifier();
@@ -104,6 +104,8 @@ class RequestValidation
         if (!Crypto::getDefault()->verify($signData, $signature, $subjectKey, $signAlgorithm)) {
             throw new InvalidX509Signature("Invalid signature on request");
         }
+
+        return;
     }
 
     /**

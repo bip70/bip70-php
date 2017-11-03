@@ -7,6 +7,7 @@ namespace Bip70\X509;
 use Composer\CaBundle\CaBundle;
 use Sop\CryptoEncoding\PEM;
 use Sop\CryptoEncoding\PEMBundle;
+use X509\Certificate\Certificate;
 use X509\Certificate\CertificateBundle;
 
 class TrustStoreLoader
@@ -33,8 +34,10 @@ class TrustStoreLoader
         }
 
         if (is_dir($rootBundlePath)) {
+            echo "From directory: $rootBundlePath\n";
             return self::fromDirectory($rootBundlePath);
         } else {
+            echo "From file: $rootBundlePath\n";
             return self::fromFile($rootBundlePath);
         }
     }
@@ -58,7 +61,21 @@ class TrustStoreLoader
      */
     public static function fromFile(string $file): CertificateBundle
     {
-        return CertificateBundle::fromPEMBundle(PEMBundle::fromFile($file));
+        $pemBundle = PEMBundle::fromFile($file);
+        $certificates = [];
+        foreach ($pemBundle as $pem) {
+            try {
+                $certificate = Certificate::fromPEM($pem);
+                $certificates[] = $certificate;
+            } catch (\Exception $e) {
+            }
+        }
+
+        if (count($certificates) < 1) {
+            throw new \RuntimeException("No certificates in file");
+        }
+
+        return new CertificateBundle(...$certificates);
     }
 
     /**
@@ -74,15 +91,20 @@ class TrustStoreLoader
             throw new \RuntimeException("Invalid path passed to fromDirectory, is not a directory");
         }
 
-        $pems = [];
+        $certificates = [];
         foreach (glob("$dir/*.pem") as $pemFile) {
-            $pems[] = PEM::fromFile($pemFile);
+            try {
+                $pem = PEM::fromFile($pemFile);
+                $certificate = Certificate::fromPEM($pem);
+                $certificates[] = $certificate;
+            } catch (\Exception $e) {
+            }
         }
 
-        if (count($pems) < 1) {
+        if (count($certificates) < 1) {
             throw new \RuntimeException("No PEM files in directory");
         }
 
-        return CertificateBundle::fromPEMs(...$pems);
+        return new CertificateBundle(...$certificates);
     }
 }
