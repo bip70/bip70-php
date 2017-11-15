@@ -16,13 +16,13 @@ test-examples:
 		./validate_examples.sh
 
 ocular:
-                wget https://scrutinizer-ci.com/ocular.phar
+		wget https://scrutinizer-ci.com/ocular.phar
 
 ifdef OCULAR_TOKEN
 scrutinizer: ocular
-                @php ocular.phar code-coverage:upload --format=php-clover build/coverage.clover --access-token=$(OCULAR_TOKEN);
+		@php ocular.phar code-coverage:upload --format=php-clover build/coverage.clover --access-token=$(OCULAR_TOKEN);
 else
 scrutinizer: ocular
-                php ocular.phar code-coverage:upload --format=php-clover build/coverage.clover;
+		php ocular.phar code-coverage:upload --format=php-clover build/coverage.clover;
 endif
 
