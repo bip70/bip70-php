@@ -34,10 +34,8 @@ class TrustStoreLoader
         }
 
         if (is_dir($rootBundlePath)) {
-            echo "From directory: $rootBundlePath\n";
             return self::fromDirectory($rootBundlePath);
         } else {
-            echo "From file: $rootBundlePath\n";
             return self::fromFile($rootBundlePath);
         }
     }
