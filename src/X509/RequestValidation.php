@@ -106,7 +106,13 @@ class RequestValidation
             $hashAlgId
         );
 
-        $clone = clone $paymentRequest;
+        $clone = new PaymentRequest();
+        if ($paymentRequest->hasPaymentDetailsVersion()) {
+            $clone->setPaymentDetailsVersion($paymentRequest->getPaymentDetailsVersion());
+        }
+        $clone->setPkiType($paymentRequest->getPkiType());
+        $clone->setPkiData($paymentRequest->getPkiData());
+        $clone->setSerializedPaymentDetails($paymentRequest->getSerializedPaymentDetails());
         $clone->setSignature('');
 
         $signData = $clone->serialize(new NonDiscardingBinaryCodec());

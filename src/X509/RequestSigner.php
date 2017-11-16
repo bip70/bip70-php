@@ -66,12 +66,14 @@ class RequestSigner implements RequestSignerInterface
         }
 
         $request = new PaymentRequest();
+        $request->setPaymentDetailsVersion(1);
         $request->setPkiType($pkiType);
         $request->setPkiData($x509Certs->serialize());
         $request->setSerializedPaymentDetails($details->serialize());
         $request->setSignature('');
 
-        $signature = $this->crypto->sign($request->serialize(new NonDiscardingBinaryCodec()), $privateKey, $signAlgorithm);
+        $data = $request->serialize(new NonDiscardingBinaryCodec());
+        $signature = $this->crypto->sign($data, $privateKey, $signAlgorithm);
 
         $request->setSignature($signature->bitString()->string());
 
