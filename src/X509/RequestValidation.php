@@ -70,7 +70,17 @@ class RequestValidation
         $endEntity = $certificates[0];
         $intermediate = new CertificateBundle(...array_slice($certificates, 1));
 
-        $path = CertificationPath::toTarget($endEntity, $this->trustStore, $intermediate);
+        return $this->validateCertificates($endEntity, $intermediate);
+    }
+
+    /**
+     * @param Certificate $certificate
+     * @param CertificateBundle $intermediate
+     * @return QualifiedCertificate
+     */
+    public function validateCertificates(Certificate $certificate, CertificateBundle $intermediate): QualifiedCertificate
+    {
+        $path = CertificationPath::toTarget($certificate, $this->trustStore, $intermediate);
         return new QualifiedCertificate($path, $path->validate($this->validationConfig));
     }
 
