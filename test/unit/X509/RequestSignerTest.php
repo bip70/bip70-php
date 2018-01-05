@@ -124,14 +124,14 @@ class RequestSignerTest extends TestCase
 
             try {
                 $result = $requestValidator->verifyX509Details($request);
+                $this->assertTrue($result->certificate()->equals($cert));
+                
                 $threw = false;
             } catch (\Exception $e) {
                 $threw = true;
             }
 
             $this->assertFalse($threw, "verifying cert details shouldn't fail");
-
-            $this->assertTrue($result->certificate()->equals($cert));
         }
     }
 }
