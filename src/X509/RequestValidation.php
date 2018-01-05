@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Bip70\X509;
 
+use Bip70\Exception\X509Exception;
 use Bip70\X509\Exception\InvalidCertificateChainException;
 use Bip70\X509\Exception\InvalidX509Signature;
 use Bip70\Protobuf\Codec\NonDiscardingBinaryCodec;
@@ -87,8 +88,8 @@ class RequestValidation
     /**
      * @param Certificate $endEntity
      * @param PaymentRequest $paymentRequest
-     * @return void
      * @throws InvalidX509Signature
+     * @throws X509Exception
      */
     public function validateX509Signature(Certificate $endEntity, PaymentRequest $paymentRequest)
     {
@@ -97,7 +98,7 @@ class RequestValidation
         } else if ($paymentRequest->getPkiType() === PKIType::X509_SHA256) {
             $hashAlgId = new SHA256AlgorithmIdentifier();
         } else {
-            throw new \RuntimeException("Unknown signature scheme");
+            throw new X509Exception("Unknown signature scheme");
         }
 
         $subjectKey = $endEntity->tbsCertificate()->subjectPublicKeyInfo();
@@ -131,7 +132,7 @@ class RequestValidation
     public function verifyX509Details(PaymentRequest $paymentRequest)
     {
         if (PKIType::NONE === $paymentRequest->getPkiType()) {
-            throw new \RuntimeException("Cannot verify a request without a signature. You should check before calling verify.");
+            throw new X509Exception("Cannot verify a request without a signature. You should check before calling verify.");
         }
 
         $x509 = new X509Certificates();

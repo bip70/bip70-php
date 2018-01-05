@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Bip70\Test\X509;
 
+use Bip70\Exception\X509Exception;
 use Bip70\Protobuf\Proto\PaymentRequest;
 use Bip70\Protobuf\Proto\X509Certificates;
 use Bip70\X509\Exception\InvalidX509Signature;
@@ -24,7 +25,7 @@ class RequestValidationTest extends TestCase
 
         $validator = new RequestValidation();
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(X509Exception::class);
         $this->expectExceptionMessage("Cannot verify a request without a signature. You should check before calling verify.");
 
         $validator->verifyX509Details($request);
@@ -38,7 +39,7 @@ class RequestValidationTest extends TestCase
         $validator = new RequestValidation();
         $certificate = Certificate::fromPEM(PEM::fromFile(__DIR__ . "/../../data/selfsigned.cert.pem"));
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(X509Exception::class);
         $this->expectExceptionMessage("Unknown signature scheme");
 
         $validator->validateX509Signature($certificate, $request);

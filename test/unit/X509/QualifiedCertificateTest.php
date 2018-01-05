@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Bip70\Test\X509;
 
+use Bip70\Exception\X509Exception;
 use Bip70\Protobuf\Proto\X509Certificates;
 use Bip70\X509\QualifiedCertificate;
 use Bip70\X509\RequestValidation;
@@ -39,7 +40,7 @@ class QualifiedCertificateTest extends TestCase
         $selfSignedPath = CertificationPath::toTarget($selfCert, $selfBundle);
 
         $this->expectExceptionMessage("CertificationPath entity certificate must match PathValidationResult certificate");
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(X509Exception::class);
 
         new QualifiedCertificate($selfSignedPath, $qualified->getValidationResult());
     }

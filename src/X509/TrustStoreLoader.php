@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Bip70\X509;
 
+use Bip70\Exception\Bip70Exception;
 use Composer\CaBundle\CaBundle;
 use Sop\CryptoEncoding\PEM;
 use Sop\CryptoEncoding\PEMBundle;
@@ -56,6 +57,7 @@ class TrustStoreLoader
      *
      * @param string $file
      * @return CertificateBundle
+     * @throws Bip70Exception
      */
     public static function fromFile(string $file): CertificateBundle
     {
@@ -70,7 +72,7 @@ class TrustStoreLoader
         }
 
         if (count($certificates) < 1) {
-            throw new \RuntimeException("No certificates in file");
+            throw new Bip70Exception("No certificates in file");
         }
 
         return new CertificateBundle(...$certificates);
@@ -82,6 +84,7 @@ class TrustStoreLoader
      *
      * @param string $dir
      * @return CertificateBundle
+     * @throws Bip70Exception
      */
     public static function fromDirectory(string $dir): CertificateBundle
     {
@@ -100,7 +103,7 @@ class TrustStoreLoader
         }
 
         if (count($certificates) < 1) {
-            throw new \RuntimeException("No PEM files in directory");
+            throw new Bip70Exception("No PEM files in directory");
         }
 
         return new CertificateBundle(...$certificates);

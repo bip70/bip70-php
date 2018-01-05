@@ -141,8 +141,8 @@ class GuzzleHttpClient
 
     /**
      * @param PaymentDetails $details
-     * @param null|string $memo
-     * @param string[] ...$transactions
+     * @param string|null $memo
+     * @param string ...$transactions
      * @return PaymentACK
      */
     public function sendPayment(PaymentDetails $details, string $memo = null, string ...$transactions): PaymentACK

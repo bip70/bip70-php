@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Bip70\Test\X509;
 
+use Bip70\Exception\Bip70Exception;
 use Bip70\X509\TrustStoreLoader;
 use Composer\CaBundle\CaBundle;
 use PHPUnit\Framework\TestCase;
@@ -146,14 +147,11 @@ class TrustStoreLoaderTest extends TestCase
 
     public function testDirectoryMustHavePems()
     {
-        $this->expectExceptionMessage("Invalid path passed to fromDirectory, is not a directory");
-        $this->expectException(\RuntimeException::class);
-
         $tmpDir = __DIR__ . "/../../../" . bin2hex(random_bytes(4));
         mkdir($tmpDir);
 
         $this->expectExceptionMessage("No PEM files in directory");
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(Bip70Exception::class);
 
         try {
             TrustStoreLoader::fromDirectory($tmpDir);

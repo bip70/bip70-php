@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Bip70\X509;
 
+use Bip70\Exception\X509Exception;
 use X501\ASN1\Name;
 use X509\CertificationPath\CertificationPath;
 use X509\CertificationPath\PathValidation\PathValidationResult;
@@ -24,11 +25,12 @@ class QualifiedCertificate
      * QualifiedCertificate constructor.
      * @param CertificationPath $path
      * @param PathValidationResult $result
+     * @throws X509Exception
      */
     public function __construct(CertificationPath $path, PathValidationResult $result)
     {
         if (!$result->certificate()->equals($path->endEntityCertificate())) {
-            throw new \RuntimeException("CertificationPath entity certificate must match PathValidationResult certificate");
+            throw new X509Exception("CertificationPath entity certificate must match PathValidationResult certificate");
         }
 
         $this->path = $path;

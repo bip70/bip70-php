@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Bip70\X509;
 
+use Bip70\Exception\X509Exception;
 use Bip70\Protobuf\Codec\NonDiscardingBinaryCodec;
 use Bip70\Protobuf\Proto\PaymentDetails;
 use Bip70\Protobuf\Proto\PaymentRequest;
@@ -43,7 +44,7 @@ class RequestSigner implements RequestSignerInterface
         CertificateBundle $intermediates
     ): PaymentRequest {
         if ($pkiType === PKIType::NONE) {
-            throw new \RuntimeException("Don't call sign with pki_type = none");
+            throw new \UnexpectedValueException("Don't call sign with pki_type = none");
         }
 
         if ($pkiType === PKIType::X509_SHA1) {
@@ -51,7 +52,7 @@ class RequestSigner implements RequestSignerInterface
         } else if ($pkiType === PKIType::X509_SHA256) {
             $hashAlgId = new SHA256AlgorithmIdentifier();
         } else {
-            throw new \RuntimeException("Unknown signature scheme");
+            throw new X509Exception("Unknown signature scheme");
         }
 
         $signAlgorithm = SignatureAlgorithmIdentifierFactory::algoForAsymmetricCrypto(

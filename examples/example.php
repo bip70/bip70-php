@@ -9,7 +9,7 @@ use X509\CertificationPath\PathValidation\PathValidationConfig;
 require __DIR__ . "/../vendor/autoload.php";
 
 if ($argc < 2) {
-    die("Missing url or request");
+    die("Missing url");
 }
 
 $validator = new RequestValidation(PathValidationConfig::defaultConfig(), TrustStoreLoader::fromSystem());

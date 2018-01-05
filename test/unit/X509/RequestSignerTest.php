@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Bip70\Test\X509;
 
+use Bip70\Exception\X509Exception;
 use Bip70\Protobuf\Proto\PaymentDetails;
 use Bip70\Protobuf\Proto\X509Certificates;
 use Bip70\X509\PKIType;
@@ -22,14 +23,14 @@ class RequestSignerTest extends TestCase
 {
     public function testSignRequiresPkiType()
     {
-        $details = new   PaymentDetails();
+        $details = new PaymentDetails();
         $privateKey = PrivateKeyInfo::fromPEM(PEM::fromFile(__DIR__ . "/../../data/selfsigned.key.pem"));
         $cert = Certificate::fromPEM(PEM::fromFile(__DIR__ . "/../../data/selfsigned.cert.pem"));
         $certBundle = new CertificateBundle();
         $requestSigner = new RequestSigner();
 
         $this->expectExceptionMessage("Don't call sign with pki_type = none");
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(\UnexpectedValueException::class);
 
         $requestSigner->sign($details, PKIType::NONE, $privateKey, $cert, $certBundle);
     }
@@ -43,7 +44,7 @@ class RequestSignerTest extends TestCase
         $requestSigner = new RequestSigner();
 
         $this->expectExceptionMessage("Unknown signature scheme");
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(X509Exception::class);
 
         $requestSigner->sign($details, "purebs", $privateKey, $cert, $certBundle);
     }
