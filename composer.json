@@ -1,7 +1,8 @@
 {
     "name": "bip70/bip70",
-    "description": "BIP70 toolkit for PHP",
+    "description": "Bitcoin payment requests (BIP70) toolkit for PHP",
     "type": "library",
+    "keywords": ["bitcoin", "btc", "bip70", "payment", "request"],
     "autoload": {
         "psr-4": {
             "Bip70\\": "src/"
