@@ -57,20 +57,21 @@ class RequestValidation
      */
     public function validateCertificateChain(X509Certificates $x509)
     {
-        if (!$x509->hasCertificate()) {
+        $numCerts = count($x509->getCertificateList());
+        if ($numCerts < 1) {
             throw new \RuntimeException("No certificates in bundle");
         }
 
-        /** @var Certificate[] $certificates */
-        $certificates = [];
-        foreach ($x509->getCertificateList() as $certDer) {
-            $certificates[] = Certificate::fromDER($certDer);
+        $endEntity = Certificate::fromDER($x509->getCertificate(0));
+        $intermediates = [];
+        for ($i = 1; $i < $numCerts; $i++) {
+            $intermediates = Certificate::fromDER($x509->getCertificate($i));
         }
 
-        $endEntity = $certificates[0];
-        $intermediate = new CertificateBundle(...array_slice($certificates, 1));
-
-        return $this->validateCertificates($endEntity, $intermediate);
+        return $this->validateCertificates(
+            $endEntity,
+            new CertificateBundle(...$intermediates)
+        );
     }
 
     /**

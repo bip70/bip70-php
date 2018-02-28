@@ -57,8 +57,8 @@ class PaymentACK extends \DrSlump\Protobuf\Message
 
     /**
      * Clear <payment> value
-     *
      * @return \Bip70\Protobuf\Proto\PaymentACK
+     * @throws \Exception
      */
     public function clearPayment()
     {

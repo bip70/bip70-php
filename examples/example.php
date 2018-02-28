@@ -12,7 +12,11 @@ if ($argc < 2) {
     die("Missing url or request");
 }
 
-$validator = new RequestValidation(PathValidationConfig::defaultConfig(), TrustStoreLoader::fromSystem());
+$validator = new RequestValidation(
+    PathValidationConfig::defaultConfig(),
+    TrustStoreLoader::fromSystem()
+);
+
 $client = new GuzzleHttpClient();
 $request = $client->getRequest($argv[1], $validator);
 
@@ -21,5 +25,10 @@ $details->parse($request->request()->getSerializedPaymentDetails());
 
 foreach ($details->getOutputsList() as $i => $detail) {
     $script = bin2hex($detail->getScript());
-    echo sprintf("Output %d [value: %d script: %s]\n", $i, $detail->getAmount(), $script);
+    echo sprintf(
+        "Output %d [value: %d script: %s]\n",
+        $i,
+        $detail->getAmount(),
+        $script
+    );
 }

@@ -82,6 +82,7 @@ class TrustStoreLoader
      *
      * @param string $dir
      * @return CertificateBundle
+
      */
     public static function fromDirectory(string $dir): CertificateBundle
     {
