@@ -153,7 +153,7 @@ class GuzzleHttpClient
             $payment->setMerchantData($details->getMerchantData());
         }
 
-        if ($memo) {
+        if ($memo !== null) {
             $payment->setMemo($memo);
         }
 
