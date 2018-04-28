@@ -14,7 +14,7 @@
     },
     "require": {
         "php": ">=7.0",
-        "sop/x509": "^0.5.0",
+        "sop/x509": "^0.6.0",
         "rgooding/protobuf-php": "v0.0.1",
         "composer/ca-bundle": "^1.0",
         "guzzlehttp/guzzle": "^6.3"
