@@ -112,8 +112,6 @@ class RequestValidation
         if (!Crypto::getDefault()->verify($signData, $signature, $subjectKey, $signAlgorithm)) {
             throw new InvalidX509Signature("Invalid signature on request");
         }
-
-        return;
     }
 
     /**
