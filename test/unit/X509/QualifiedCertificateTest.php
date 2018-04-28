@@ -14,6 +14,7 @@ use Sop\CryptoEncoding\PEMBundle;
 use X509\Certificate\Certificate;
 use X509\Certificate\CertificateBundle;
 use X509\CertificationPath\CertificationPath;
+use X509\CertificationPath\PathValidation\PathValidationConfig;
 
 class QualifiedCertificateTest extends TestCase
 {
@@ -25,7 +26,12 @@ class QualifiedCertificateTest extends TestCase
             $x509->addCertificate($it->toDER());
         }
 
-        $validator = new RequestValidation(null, TrustStoreLoader::fromSystem());
+        // 10/12/2017 ish
+        $now = new \DateTimeImmutable();
+        $now = $now->setTimestamp(1509692666);
+
+        $validationConfig = new PathValidationConfig($now, 10);
+        $validator = new RequestValidation($validationConfig, TrustStoreLoader::fromSystem());
         $qualified = $validator->validateCertificateChain($x509);
 
         $selfCert = Certificate::fromPEM(PEM::fromFile(__DIR__ . "/../../data/selfsigned.cert.pem"));
@@ -46,7 +52,12 @@ class QualifiedCertificateTest extends TestCase
             $x509->addCertificate($it->toDER());
         }
 
-        $validator = new RequestValidation(null, TrustStoreLoader::fromSystem());
+        // 10/12/2017 ish
+        $now = new \DateTimeImmutable();
+        $now = $now->setTimestamp(1509692666);
+        $validationConfig = new PathValidationConfig($now, 10);
+
+        $validator = new RequestValidation($validationConfig, TrustStoreLoader::fromSystem());
         $qualified = $validator->validateCertificateChain($x509);
         $this->assertTrue(Certificate::fromDER($x509->getCertificate(0))->tbsCertificate()->subject()->equals($qualified->subject()));
         $this->assertTrue($qualified->getPath()->endEntityCertificate()->tbsCertificate()->subject()->equals($qualified->subject()));

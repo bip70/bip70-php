@@ -16,6 +16,7 @@ use Sop\CryptoEncoding\PEMBundle;
 use Sop\CryptoTypes\Asymmetric\PrivateKeyInfo;
 use X509\Certificate\Certificate;
 use X509\Certificate\CertificateBundle;
+use X509\CertificationPath\PathValidation\PathValidationConfig;
 
 class RequestSignerTest extends TestCase
 {
@@ -85,7 +86,11 @@ class RequestSignerTest extends TestCase
         $details->setTime($now);
 
         $requestSigner = new RequestSigner();
-        $requestValidator = new RequestValidation(null, $trustStore);
+        // 10/12/2017 ish
+        $now = new \DateTimeImmutable();
+        $now = $now->setTimestamp(1509692666);
+
+        $requestValidator = new RequestValidation(new PathValidationConfig($now, 10), $trustStore);
 
         foreach ([PKIType::X509_SHA256, PKIType::X509_SHA1] as $pkiType) {
             $request = $requestSigner->sign($details, $pkiType, $privateKey, $cert, $certBundle);
