@@ -7,6 +7,7 @@ namespace Bip70\Test\X509;
 use Bip70\Exception\X509Exception;
 use Bip70\Protobuf\Proto\PaymentRequest;
 use Bip70\Protobuf\Proto\X509Certificates;
+use Bip70\X509\Exception\InvalidCertificateChainException;
 use Bip70\X509\Exception\InvalidX509Signature;
 use Bip70\X509\PKIType;
 use Bip70\X509\QualifiedCertificate;
@@ -50,7 +51,7 @@ class RequestValidationTest extends TestCase
         $x509 = new X509Certificates();
         $validator = new RequestValidation();
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(InvalidCertificateChainException::class);
         $this->expectExceptionMessage("No certificates in bundle");
 
         $validator->validateCertificateChain($x509);

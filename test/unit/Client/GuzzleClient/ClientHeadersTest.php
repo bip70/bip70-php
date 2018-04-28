@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Bip70\Test\Client\GuzzleClient;
 
+use Bip70\Client\Exception\ProtocolException;
+use Bip70\Client\MIMEType;
 use PHPUnit\Framework\TestCase;
 
 use Bip70\Client\GuzzleHttpClient;
@@ -45,8 +47,8 @@ class ClientHeadersTest extends TestCase
         $validationConfig = new PathValidationConfig($now, 10);
         $validator = new RequestValidation($validationConfig, TrustStoreLoader::fromSystem());
 
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage("Missing content-type header");
+        $this->expectException(ProtocolException::class);
+        $this->expectExceptionMessage("Missing Content-Type header");
 
         $client->getRequest($requestUrl, $validator);
     }
@@ -83,8 +85,8 @@ class ClientHeadersTest extends TestCase
         $validationConfig = new PathValidationConfig($now, 10);
         $validator = new RequestValidation($validationConfig, TrustStoreLoader::fromSystem());
 
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage("Content-type was not application/bitcoin-paymentrequest");
+        $this->expectException(ProtocolException::class);
+        $this->expectExceptionMessage("Content-Type was not " . MIMEType::PAYMENT_REQUEST);
 
         $client->getRequest($requestUrl, $validator);
     }
