@@ -41,7 +41,7 @@ class PaymentRequestInfo
     /**
      * @return null|PathValidationResult
      */
-    public function pathValidation(): ?PathValidationResult
+    public function pathValidation()
     {
         return $this->validationResult;
     }
