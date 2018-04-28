@@ -15,7 +15,7 @@ class PaymentRequestInfo
     private $request;
 
     /**
-     * @var PathValidationResult
+     * @var null|PathValidationResult
      */
     private $validationResult;
 

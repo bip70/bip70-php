@@ -11,9 +11,7 @@ use Bip70\Protobuf\Codec\NonDiscardingBinaryCodec;
 use Bip70\Protobuf\Proto\PaymentRequest;
 use Bip70\Protobuf\Proto\X509Certificates;
 use Sop\CryptoBridge\Crypto;
-use Sop\CryptoTypes\AlgorithmIdentifier\Hash\SHA1AlgorithmIdentifier;
-use Sop\CryptoTypes\AlgorithmIdentifier\Hash\SHA256AlgorithmIdentifier;
-use Sop\CryptoTypes\AlgorithmIdentifier\Signature\SignatureAlgorithmIdentifierFactory;
+use Sop\CryptoTypes\AlgorithmIdentifier\Feature\AsymmetricCryptoAlgorithmIdentifier;
 use Sop\CryptoTypes\Signature\Signature;
 use X509\Certificate\Certificate;
 use X509\Certificate\CertificateBundle;
@@ -23,7 +21,7 @@ use X509\CertificationPath\PathValidation\PathValidationConfig;
 class RequestValidation
 {
     /**
-     * @var null|PathValidationConfig
+     * @var PathValidationConfig
      */
     private $validationConfig;
 
@@ -93,24 +91,17 @@ class RequestValidation
      */
     public function validateX509Signature(Certificate $endEntity, PaymentRequest $paymentRequest)
     {
-        if ($paymentRequest->getPkiType() === PKIType::X509_SHA1) {
-            $hashAlgId = new SHA1AlgorithmIdentifier();
-        } else if ($paymentRequest->getPkiType() === PKIType::X509_SHA256) {
-            $hashAlgId = new SHA256AlgorithmIdentifier();
-        } else {
-            throw new X509Exception("Unknown signature scheme");
-        }
-
         $subjectKey = $endEntity->tbsCertificate()->subjectPublicKeyInfo();
-        $signAlgorithm = SignatureAlgorithmIdentifierFactory::algoForAsymmetricCrypto(
-            $subjectKey->algorithmIdentifier(),
-            $hashAlgId
-        );
+
+        /** @var AsymmetricCryptoAlgorithmIdentifier $algOid */
+        $algOid = $subjectKey->algorithmIdentifier();
+        $signAlgorithm = SignatureAlgorithmFactory::getSignatureAlgorithm($paymentRequest->getPkiType(), $algOid);
 
         $clone = new PaymentRequest();
         if ($paymentRequest->hasPaymentDetailsVersion()) {
             $clone->setPaymentDetailsVersion($paymentRequest->getPaymentDetailsVersion());
         }
+
         $clone->setPkiType($paymentRequest->getPkiType());
         $clone->setPkiData($paymentRequest->getPkiData());
         $clone->setSerializedPaymentDetails($paymentRequest->getSerializedPaymentDetails());
