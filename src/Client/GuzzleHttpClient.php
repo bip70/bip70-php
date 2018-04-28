@@ -45,14 +45,6 @@ class GuzzleHttpClient
     }
 
     /**
-     * @return Client
-     */
-    public function getClient(): Client
-    {
-        return $this->client;
-    }
-
-    /**
      * @param string $url
      * @param string $acceptType
      * @return ResponseInterface
@@ -122,11 +114,11 @@ class GuzzleHttpClient
     public function getRequest(string $requestUrl, RequestValidation $requestValidation): PaymentRequestInfo
     {
         $response = $this->get($requestUrl, MIMEType::PAYMENT_REQUEST);
-
         $paymentRequest = new PaymentRequest();
 
         try {
-            $paymentRequest->parse($response->getBody()->getContents(), new NonDiscardingBinaryCodec());
+            $contents = $response->getBody()->getContents();
+            $paymentRequest->parse($contents, new NonDiscardingBinaryCodec());
         } catch (\Exception $e) {
             throw new \RuntimeException("Failed to decode payment request");
         }
