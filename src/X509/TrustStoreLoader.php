@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bip70\X509;
 
 use Bip70\Exception\Bip70Exception;
+use Bip70\X509\Exception\TrustStoreException;
 use Composer\CaBundle\CaBundle;
 use Sop\CryptoEncoding\PEM;
 use Sop\CryptoEncoding\PEMBundle;
@@ -31,7 +32,7 @@ class TrustStoreLoader
         $rootBundlePath = CaBundle::getSystemCaRootBundlePath();
 
         if (!$allowFallback && CaBundle::getBundledCaBundlePath() === $rootBundlePath) {
-            throw new \RuntimeException("Fallback to composer ca-bundle is disabled - you should install the ca-certificates package");
+            throw new TrustStoreException("Fallback to composer ca-bundle is disabled - you should install the ca-certificates package");
         }
 
         if (is_dir($rootBundlePath)) {
@@ -68,11 +69,12 @@ class TrustStoreLoader
                 $certificate = Certificate::fromPEM($pem);
                 $certificates[] = $certificate;
             } catch (\Exception $e) {
+                // some files are invalid.. I guess?
             }
         }
 
         if (count($certificates) < 1) {
-            throw new Bip70Exception("No certificates in file");
+            throw new TrustStoreException("No certificates in file");
         }
 
         return new CertificateBundle(...$certificates);
@@ -89,7 +91,7 @@ class TrustStoreLoader
     public static function fromDirectory(string $dir): CertificateBundle
     {
         if (!is_dir($dir)) {
-            throw new \RuntimeException("Invalid path passed to fromDirectory, is not a directory");
+            throw new TrustStoreException("Invalid path passed to fromDirectory, is not a directory");
         }
 
         $certificates = [];
@@ -99,11 +101,12 @@ class TrustStoreLoader
                 $certificate = Certificate::fromPEM($pem);
                 $certificates[] = $certificate;
             } catch (\Exception $e) {
+                // some files are invalid.. I guess?
             }
         }
 
         if (count($certificates) < 1) {
-            throw new Bip70Exception("No PEM files in directory");
+            throw new TrustStoreException("No PEM files in directory");
         }
 
         return new CertificateBundle(...$certificates);

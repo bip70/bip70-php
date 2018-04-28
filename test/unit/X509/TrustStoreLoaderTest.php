@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bip70\Test\X509;
 
 use Bip70\Exception\Bip70Exception;
+use Bip70\X509\Exception\TrustStoreException;
 use Bip70\X509\TrustStoreLoader;
 use Composer\CaBundle\CaBundle;
 use PHPUnit\Framework\TestCase;
@@ -98,7 +99,7 @@ class TrustStoreLoaderTest extends TestCase
 
         putenv("{$envVar}=" . CaBundle::getBundledCaBundlePath());
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(TrustStoreException::class);
         $this->expectExceptionMessage("Fallback to composer ca-bundle is disabled - you should install the ca-certificates package");
 
         try {
@@ -140,7 +141,7 @@ class TrustStoreLoaderTest extends TestCase
     public function testFromDirectoryRequiresADirectory()
     {
         $this->expectExceptionMessage("Invalid path passed to fromDirectory, is not a directory");
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(TrustStoreException::class);
 
         TrustStoreLoader::fromDirectory("/some/invalid/path");
     }
