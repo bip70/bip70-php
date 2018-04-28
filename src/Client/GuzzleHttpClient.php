@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Bip70\Client;
 
+use Bip70\Client\Exception\ProtocolException;
 use Bip70\Protobuf\Codec\NonDiscardingBinaryCodec;
 use Bip70\Protobuf\Proto\Payment;
 use Bip70\Protobuf\Proto\PaymentACK;
@@ -97,12 +98,12 @@ class GuzzleHttpClient
     public function checkContentType(string $expectType, ResponseInterface $response)
     {
         if (!$response->hasHeader("Content-Type")) {
-            throw new \RuntimeException("Missing content-type header");
+            throw new ProtocolException("Missing Content-Type header");
         }
 
         $contentType = $response->getHeader("Content-Type");
         if (!in_array($expectType, $contentType)) {
-            throw new \RuntimeException("Content-type was not " . $expectType);
+            throw new ProtocolException("Content-Type was not " . $expectType);
         }
     }
 
@@ -120,7 +121,7 @@ class GuzzleHttpClient
             $contents = $response->getBody()->getContents();
             $paymentRequest->parse($contents, new NonDiscardingBinaryCodec());
         } catch (\Exception $e) {
-            throw new \RuntimeException("Failed to decode payment request");
+            throw new ProtocolException("Failed to decode payment request", 0, $e);
         }
 
         $validationResult = null;

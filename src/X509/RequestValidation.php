@@ -57,7 +57,7 @@ class RequestValidation
     public function validateCertificateChain(X509Certificates $x509)
     {
         if (!$x509->hasCertificate()) {
-            throw new \RuntimeException("No certificates in bundle");
+            throw new InvalidCertificateChainException("No certificates in bundle");
         }
 
         /** @var Certificate[] $certificates */
