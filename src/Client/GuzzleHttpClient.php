@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bip70\Client;
 
 use Bip70\Client\Exception\ProtocolException;
+use Bip70\Client\NetworkConfig\NetworkConfigInterface;
 use Bip70\Protobuf\Codec\NonDiscardingBinaryCodec;
 use Bip70\Protobuf\Proto\Payment;
 use Bip70\Protobuf\Proto\PaymentACK;
@@ -110,11 +111,14 @@ class GuzzleHttpClient
     /**
      * @param string $requestUrl
      * @param RequestValidation $requestValidation
+     * @param NetworkConfigInterface $networkConfig
      * @return PaymentRequestInfo
+     * @throws ProtocolException
+     * @throws \Bip70\Exception\X509Exception
      */
-    public function getRequest(string $requestUrl, RequestValidation $requestValidation): PaymentRequestInfo
+    public function getRequest(string $requestUrl, RequestValidation $requestValidation, NetworkConfigInterface $networkConfig): PaymentRequestInfo
     {
-        $response = $this->get($requestUrl, MIMEType::PAYMENT_REQUEST);
+        $response = $this->get($requestUrl, $networkConfig->getPaymentRequestMimeType());
         $paymentRequest = new PaymentRequest();
 
         try {
@@ -134,11 +138,12 @@ class GuzzleHttpClient
 
     /**
      * @param PaymentDetails $details
+     * @param NetworkConfigInterface $networkConfig
      * @param string|null $memo
      * @param string ...$transactions
      * @return PaymentACK
      */
-    public function sendPayment(PaymentDetails $details, string $memo = null, string ...$transactions): PaymentACK
+    public function sendPayment(PaymentDetails $details, NetworkConfigInterface $networkConfig, string $memo = null, string ...$transactions): PaymentACK
     {
         if (!$details->hasPaymentUrl()) {
             throw new \RuntimeException("No payment url set on details");
@@ -158,7 +163,7 @@ class GuzzleHttpClient
         }
 
         $paymentData = $payment->serialize();
-        $result = $this->post($details->getPaymentUrl(), MIMEType::PAYMENT_ACK, MIMEType::PAYMENT, $paymentData);
+        $result = $this->post($details->getPaymentUrl(), $networkConfig->getPaymentAckMimeType(), $networkConfig->getPaymentMimeType(), $paymentData);
 
         $ack = new PaymentACK();
 

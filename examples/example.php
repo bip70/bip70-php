@@ -1,5 +1,6 @@
 <?php
 
+use Bip70\Client\NetworkConfig\BitcoinNetworkConfig;
 use Bip70\Client\GuzzleHttpClient;
 use Bip70\Protobuf\Proto\PaymentDetails;
 use Bip70\X509\RequestValidation;
@@ -14,7 +15,10 @@ if ($argc < 2) {
 
 $validator = new RequestValidation(PathValidationConfig::defaultConfig(), TrustStoreLoader::fromSystem());
 $client = new GuzzleHttpClient();
-$request = $client->getRequest($argv[1], $validator);
+
+$networkConfig = new BitcoinNetworkConfig();
+
+$request = $client->getRequest($argv[1], $validator, $networkConfig);
 
 $details = new PaymentDetails();
 $details->parse($request->request()->getSerializedPaymentDetails());
