@@ -5,14 +5,16 @@ declare(strict_types=1);
 namespace Bip70\Test\Client;
 
 use Bip70\Client\MIMEType;
+use Bip70\Client\NetworkConfig\BitcoinNetworkConfig;
 use PHPUnit\Framework\TestCase;
 
 class MIMETypeTest extends TestCase
 {
     public function testTypes()
     {
-        $this->assertEquals("application/bitcoin-paymentrequest", MIMEType::PAYMENT_REQUEST);
-        $this->assertEquals("application/bitcoin-payment", MIMEType::PAYMENT);
-        $this->assertEquals("application/bitcoin-paymentack", MIMEType::PAYMENT_ACK);
+        $networkConfig = new BitcoinNetworkConfig();
+        $this->assertEquals("application/bitcoin-paymentrequest", $networkConfig->getPaymentRequestMimeType());
+        $this->assertEquals("application/bitcoin-payment", $networkConfig->getPaymentMimeType());
+        $this->assertEquals("application/bitcoin-paymentack", $networkConfig->getPaymentAckMimeType());
     }
 }

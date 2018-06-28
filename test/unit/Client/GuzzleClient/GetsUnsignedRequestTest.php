@@ -6,6 +6,7 @@ namespace Bip70\Test\Client;
 
 use Bip70\Client\GuzzleHttpClient;
 use Bip70\Client\MIMEType;
+use Bip70\Client\NetworkConfig\BitcoinNetworkConfig;
 use Bip70\Client\PaymentRequestInfo;
 use Bip70\X509\RequestValidation;
 use Bip70\X509\TrustStoreLoader;
@@ -48,9 +49,11 @@ class GetsUnsignedRequestTest extends TestCase
         $now = new \DateTimeImmutable();
         $now = $now->setTimestamp(1509692666);
 
+        $networkConfig = new BitcoinNetworkConfig();
+
         $validationConfig = new PathValidationConfig($now, 10);
         $validator = new RequestValidation($validationConfig, TrustStoreLoader::fromSystem());
-        $data = $client->getRequest($requestUrl, $validator);
+        $data = $client->getRequest($requestUrl, $validator, $networkConfig);
 
         $this->assertInstanceOf(PaymentRequestInfo::class, $data);
         $this->assertCount(1, $container);
@@ -59,7 +62,7 @@ class GetsUnsignedRequestTest extends TestCase
         $req1 = $container[0]['request'];
         $this->assertEquals($requestUrl, $req1->getUri());
         $this->assertTrue($req1->hasHeader('Accept'));
-        $this->assertEquals(MIMEType::PAYMENT_REQUEST, $req1->getHeader('Accept')[0]);
+        $this->assertEquals($networkConfig->getPaymentRequestMimeType(), $req1->getHeader('Accept')[0]);
         $this->assertNull($data->pathValidation());
     }
 }

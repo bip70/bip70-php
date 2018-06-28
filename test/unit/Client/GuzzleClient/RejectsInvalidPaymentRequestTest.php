@@ -6,6 +6,7 @@ namespace Bip70\Test\Client;
 
 use Bip70\Client\Exception\ProtocolException;
 use Bip70\Client\GuzzleHttpClient;
+use Bip70\Client\NetworkConfig\BitcoinNetworkConfig;
 use Bip70\X509\RequestValidation;
 use Bip70\X509\TrustStoreLoader;
 use GuzzleHttp\Handler\MockHandler;
@@ -46,12 +47,14 @@ class RejectsInvalidPaymentRequestTest extends TestCase
         $now = new \DateTimeImmutable();
         $now = $now->setTimestamp(1509692666);
 
+        $networkConfig = new BitcoinNetworkConfig();
+
         $validationConfig = new PathValidationConfig($now, 10);
         $validator = new RequestValidation($validationConfig, TrustStoreLoader::fromSystem());
 
         $this->expectException(ProtocolException::class);
         $this->expectExceptionMessage("Failed to decode payment request");
 
-        $client->getRequest($requestUrl, $validator);
+        $client->getRequest($requestUrl, $validator, $networkConfig);
     }
 }

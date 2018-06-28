@@ -6,6 +6,7 @@ namespace Bip70\Test\Client\GuzzleClient;
 
 use Bip70\Client\Exception\ProtocolException;
 use Bip70\Client\MIMEType;
+use Bip70\Client\NetworkConfig\BitcoinNetworkConfig;
 use PHPUnit\Framework\TestCase;
 
 use Bip70\Client\GuzzleHttpClient;
@@ -44,13 +45,15 @@ class ClientHeadersTest extends TestCase
         $now = new \DateTimeImmutable();
         $now = $now->setTimestamp(1509692666);
 
+        $networkConfig = new BitcoinNetworkConfig();
+
         $validationConfig = new PathValidationConfig($now, 10);
         $validator = new RequestValidation($validationConfig, TrustStoreLoader::fromSystem());
 
         $this->expectException(ProtocolException::class);
         $this->expectExceptionMessage("Missing Content-Type header");
 
-        $client->getRequest($requestUrl, $validator);
+        $client->getRequest($requestUrl, $validator, $networkConfig);
     }
 
     public function testInvalidContentType()
@@ -82,12 +85,14 @@ class ClientHeadersTest extends TestCase
         $now = new \DateTimeImmutable();
         $now = $now->setTimestamp(1509692666);
 
+        $networkConfig = new BitcoinNetworkConfig();
+
         $validationConfig = new PathValidationConfig($now, 10);
         $validator = new RequestValidation($validationConfig, TrustStoreLoader::fromSystem());
 
         $this->expectException(ProtocolException::class);
-        $this->expectExceptionMessage("Content-Type was not " . MIMEType::PAYMENT_REQUEST);
+        $this->expectExceptionMessage("Content-Type was not " . $networkConfig->getPaymentRequestMimeType());
 
-        $client->getRequest($requestUrl, $validator);
+        $client->getRequest($requestUrl, $validator, $networkConfig);
     }
 }

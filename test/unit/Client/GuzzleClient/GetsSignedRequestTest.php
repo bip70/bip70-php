@@ -6,6 +6,7 @@ namespace Bip70\Test\Client\GuzzleClient;
 
 use Bip70\Client\GuzzleHttpClient;
 use Bip70\Client\MIMEType;
+use Bip70\Client\NetworkConfig\BitcoinNetworkConfig;
 use Bip70\Client\PaymentRequestInfo;
 use Bip70\Protobuf\Proto\PaymentDetails;
 use Bip70\X509\PKIType;
@@ -66,6 +67,8 @@ class GetsSignedRequestTest extends TestCase
 
         $requestUrl = "https://development.bip70.local/invoice/1";
 
+        $networkConfig = new BitcoinNetworkConfig();
+
         $validator = $this->getMockBuilder(RequestValidation::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -78,7 +81,7 @@ class GetsSignedRequestTest extends TestCase
                     ->disableOriginalConstructor()
                     ->getMock();
             });
-        $data = $client->getRequest($requestUrl, $validator);
+        $data = $client->getRequest($requestUrl, $validator, $networkConfig);
 
         $this->assertInstanceOf(PaymentRequestInfo::class, $data);
         $this->assertEquals($serializedRequest, $data->request()->serialize());
@@ -127,10 +130,10 @@ class GetsSignedRequestTest extends TestCase
         // 10/12/2017 ish
         $dtnow = new \DateTimeImmutable();
         $dtnow = $dtnow->setTimestamp($now);
-
+        $networkConfig = new BitcoinNetworkConfig();
         $validationConfig = new PathValidationConfig($dtnow, 10);
         $validator = new RequestValidation($validationConfig, TrustStoreLoader::fromSystem());
-        $data = $client->getRequest($requestUrl, $validator);
+        $data = $client->getRequest($requestUrl, $validator, $networkConfig);
 
         $this->assertInstanceOf(PaymentRequestInfo::class, $data);
         $this->assertEquals($serializedRequest, $data->request()->serialize());
@@ -141,7 +144,7 @@ class GetsSignedRequestTest extends TestCase
         $req1 = $container[0]['request'];
         $this->assertEquals($requestUrl, $req1->getUri());
         $this->assertTrue($req1->hasHeader('Accept'));
-        $this->assertEquals(MIMEType::PAYMENT_REQUEST, $req1->getHeader('Accept')[0]);
+        $this->assertEquals($networkConfig->getPaymentRequestMimeType(), $req1->getHeader('Accept')[0]);
 
         /** @var ResponseInterface $res1 */
         $res1 = $container[0]['response'];
