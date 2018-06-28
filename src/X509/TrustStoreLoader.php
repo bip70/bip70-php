@@ -30,7 +30,7 @@ class TrustStoreLoader
     public static function fromSystem(bool $allowFallback = true): CertificateBundle
     {
         $rootBundlePath = CaBundle::getSystemCaRootBundlePath();
-
+        var_dump("rootBundlePath", $rootBundlePath);
         if (!$allowFallback && CaBundle::getBundledCaBundlePath() === $rootBundlePath) {
             throw new TrustStoreException("Fallback to composer ca-bundle is disabled - you should install the ca-certificates package");
         }
@@ -62,6 +62,7 @@ class TrustStoreLoader
      */
     public static function fromFile(string $file): CertificateBundle
     {
+        echo "load from pem bundle file: $file\n";
         $pemBundle = PEMBundle::fromFile($file);
         $certificates = [];
         foreach ($pemBundle as $pem) {
@@ -77,6 +78,9 @@ class TrustStoreLoader
             throw new TrustStoreException("No certificates in file");
         }
 
+        echo "size pem bundle " . count($pemBundle).PHP_EOL;
+        echo "size certs      " . count($certificates).PHP_EOL;
+
         return new CertificateBundle(...$certificates);
     }
 
@@ -90,6 +94,7 @@ class TrustStoreLoader
      */
     public static function fromDirectory(string $dir): CertificateBundle
     {
+        var_dump("fromDirectory");
         if (!is_dir($dir)) {
             throw new TrustStoreException("Invalid path passed to fromDirectory, is not a directory");
         }

@@ -21,7 +21,7 @@ class SignatureAlgorithmFactory
             $hashAlgId = new SHA1AlgorithmIdentifier();
         } else if ($pkiType === PKIType::X509_SHA256) {
             $hashAlgId = new SHA256AlgorithmIdentifier();
-        } else {
+        } else {w
             throw new X509Exception("Unknown signature scheme");
         }
 
